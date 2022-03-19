@@ -1,0 +1,7 @@
+.DS_Store
+rabbitmq/data/*
+rabbitmq/log/*
+postgres/data/*
+postgres/log/*
+postgres/lib/*
+couchdb/data/*

@@ -1,0 +1,116 @@
+## clientid: 418923668370-cc096vqpqtgcnjlucn3p165gellv2f8q.apps.googleusercontent.com
+## client secret: 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
+##
+##
+version: '3.7'
+
+services:
+
+  django-mdb-mongo:
+    image: 'mongo'
+    container_name: django-mdb-mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+
+  django-mdb-mongo-express:
+    image: 'mongo-express'
+    container_name: django-mdb-mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin@django-mdb-mongo:27017/
+
+  ##hostname for docker = django-mdb-rabbitmq
+  ##execute for the first time: rabbitmq-plugins enable --offline rabbitmq_management (not needed, already inluded in etc)
+  ##https://hub.docker.com/_/rabbitmq
+  ##http://127.0.0.1:15672
+  django-mdb-rabbitmq:
+      image: 'rabbitmq:3-management'
+      container_name: django-mdb-rabbitmq
+      restart: always
+
+      environment:
+        - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER:-admin}
+        - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS:-admin}
+      ##command: rabbitmq-plugins enable --offline rabbitmq_management
+      volumes:
+          - ./rabbitmq/etc/:/etc/rabbitmq/
+          - ./rabbitmq/data/:/var/lib/rabbitmq/
+      ##  - ./rabbitmq/log/:/var/log/rabbitmq/
+      ports:
+        - "5672:5672" # The standard AMQP protocol port
+        - "15672:15672" # HTTP management UI
+      logging:
+        driver: 'none'  # disable saving logs
+      networks:
+        - django-mdb
+
+  ##hostname for docker = django-mdb-keycloack
+  ##https://hub.docker.com/r/jboss/keycloak/
+  ##http://127.0.0.1:8080
+  django-mdb-keycloak:
+      image: jboss/keycloak:9.0.2
+      command: -Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.migration.strategy=OVERWRITE_EXISTING
+      container_name: django-mdb-keycloak
+      restart: always
+      environment:
+        DB_VENDOR: h2
+      #  DB_VENDOR: POSTGRES
+      #  DB_ADDR: django-mdb-postgres
+      #  DB_DATABASE: django-mdb-keycloack
+      #  DB_USER: admin
+      #  DB_PASSWORD: admin
+        KEYCLOAK_USER: admin
+        KEYCLOAK_PASSWORD: admin
+        PROXY_ADDRESS_FORWARDING: "true"
+##      KEYCLOAK_IMPORT: "/tmp/realm.json"
+      volumes:
+      - ./keycloack/realm.json:/tmp/realm.json              
+      ports:
+        - "8080:8080"
+      logging:
+        driver: 'none'  # disable saving logs        
+      networks:
+        - django-mdb
+
+  ##hostname for docker = django-mdb-memcached
+  ##using 256MB of RAM
+  django-mdb-memcached:
+    image: memcached
+    command: -m 256
+    container_name: django-mdb-memcached
+    restart: always
+    ports:
+      - "11211:11211"
+    logging:
+      driver: 'none'  # disable saving logs      
+    networks:
+      - django-mdb
+
+  ##hostname for docker = django-mdb-mailhog
+  ##https://hub.docker.com/r/mailhog/mailhog/
+  ##http://127.0.0.1:8025
+  django-mdb-mailhog:
+    image: mailhog/mailhog:latest
+    container_name: django-mdb-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    logging:
+      driver: 'none'  # disable saving logs      
+    networks:
+      - django-mdb
+
+networks:
+  django-mdb:
+    name: django-mdb
+    driver: bridge
+
+
