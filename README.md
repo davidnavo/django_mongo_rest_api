@@ -1,2 +1,2 @@
-# django_mongo_rest_api
-Django MongoDB rest api
+# django MongoDB Rest Api
+Django MongoDB Rest api
