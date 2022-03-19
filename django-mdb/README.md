@@ -1,15 +1,13 @@
 
-# Darvel Project
+# Django mongodb Project
 
 ## Project documentation
 
-[Darvel documentation](https://drive.google.com/drive/folders/0ALAue658glZsUk9PVA)
 
 ## Development Board
 
-[Jamboard](https://jamboard.google.com/d/1TouRusrNHlcUvzo2b5CNYEKJq4SzwW_PFeKFOdCRaSM)
 
-# Darvel Backend
+# Django mongodb Backend
 
 ## Setup environment
 
@@ -22,7 +20,7 @@ pip install -r requirements.txt
 
 ## Create superuser
 
-python manage.py createsuperuser --email <darvel@darvel.com> --username darvel
+python manage.py createsuperuser --email <xxx@xxx,com> --username xxxx
 
 ## Make migrations / migrate
 
@@ -48,4 +46,4 @@ pip freeze > requirements.txt
 
 ## Create docker file
 
-docker build -t rdspain/darvel .
+docker build -t organization/image .
